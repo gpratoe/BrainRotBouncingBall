@@ -11,6 +11,7 @@ class Ball:
         self.position = position
         self.color = (255,0,10)
         self.radius = radius
+        self.inc_rad_flag = False
         self.ball = self.world.CreateDynamicBody(
             fixtures=b2FixtureDef(
                 shape=b2CircleShape(radius=self.radius),
@@ -19,13 +20,32 @@ class Ball:
                 friction=0),
             bullet=True,
             position=(self.position))
+        
+        self.ball.userData = self
     
 
+    def update(self):
+        if self.inc_rad_flag:
+            self.radius += 0.1
+
+            self.ball.DestroyFixture(self.ball.fixtures[0])
+
+            new_fixture = b2FixtureDef(
+                shape=b2CircleShape(radius=self.radius),
+                density=0.5,
+                restitution=1,
+                friction=0
+            )
+
+            self.ball.CreateFixture(new_fixture)
+
+            self.inc_rad_flag = False
+    
     def draw(self):
         draw.circle(self.screen, self.color, world_to_pixels(self.ball.position), self.radius * PPM)
 
 
-class Circle: # this doesn't work
+class Circle:
     def __init__(self, screen,world,position,radius, num_segments=360, thickness=3):
         self.screen = screen
         self.world = world
@@ -50,7 +70,8 @@ class Circle: # this doesn't work
                                                         friction=0.0,
                                                         restitution=1.0),
                                                     bullet=True)
-                        
+        self.circle.userData = self
+
     def draw(self):
         draw.circle(self.screen, self.color, world_to_pixels(self.circle.position), self.radius * PPM, width=self.thickness)
 
@@ -71,6 +92,7 @@ class Rect:
             ),
             bullet=True
         )
+        self.rect.userData = self
 
     def draw(self):
         position_in_pixels = world_to_pixels(self.rect.position)

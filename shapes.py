@@ -1,6 +1,6 @@
 import pygame
 from pygame import draw
-from Box2D import (b2CircleShape, b2FixtureDef, b2LoopShape, b2PolygonShape, b2Vec2)
+from Box2D import (b2CircleShape, b2FixtureDef, b2LoopShape, b2PolygonShape, b2Vec2, b2ChainShape, b2Mul)
 from utils import *
 import math
 
@@ -17,7 +17,7 @@ class Ball:
                 shape=b2CircleShape(radius=self.radius),
                 density=0.5,
                 restitution=1,
-                friction=0),
+                friction=0.0),
             bullet=True,
             position=(self.position))
         
@@ -46,7 +46,7 @@ class Ball:
 
 
 class Circle:
-    def __init__(self, screen,world,position,radius, num_segments=360, thickness=3):
+    def __init__(self, screen,world,position,radius, num_segments=1000, thickness=3, open_segments=0):
         self.screen = screen
         self.world = world
         self.position = position
@@ -57,15 +57,17 @@ class Circle:
         self.size = num_segments
         self.vertices = []
         
-        for i in range(self.size):
+        for i in range((self.size+1) - open_segments):
             angle = i * (2 * math.pi / self.size)
             x = radius * math.cos(angle) #+ position[0]
             y = radius * math.sin(angle) #+ position[1]
             self.vertices.append((x, y))
 
+        self.pixel_vertices = [world_to_pixels((x + self.position[0], y + self.position[1])) for x,y in self.vertices]
+
         self.circle = self.world.CreateStaticBody(position=position,
                                                     fixtures=b2FixtureDef(
-                                                        shape=b2LoopShape(vertices=self.vertices),
+                                                        shape=b2ChainShape(vertices_chain=self.vertices),
                                                         density=1.0,
                                                         friction=0.0,
                                                         restitution=1.0),
@@ -73,7 +75,13 @@ class Circle:
         self.circle.userData = self
 
     def draw(self):
-        draw.circle(self.screen, self.color, world_to_pixels(self.circle.position), self.radius * PPM, width=self.thickness)
+        draw.lines(self.screen, self.color,False, self.pixel_vertices, self.thickness)
+
+    def update(self):
+        self.circle.angle += 0.01
+        self.pixel_vertices = [world_to_pixels(b2Mul(self.circle.transform, point)) for point in self.vertices]
+         
+        
 
 class Rect:
     def __init__(self, screen, world, position, width, height):

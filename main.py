@@ -19,27 +19,31 @@ world = b2World(gravity=(0, 60), doSleep=True)
 
 ball = Ball(screen,world, pixels_to_world((width/2 - 1 , height/2-circle_radius+ballradius*2)), ballradius / PPM)
 
-circle = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius / PPM)
-
-
-rect = Rect(screen, world, pixels_to_world((width/2, height/2+ ballradius*5)), 250/PPM , 5/PPM)
+circle = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius / PPM, open_segments=40)
 
 cl = ContactListener(ball)
 world.contactListener = cl
 
+running = False
 
-while True:
+while not running:
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_p:
+                running = True
+        if event.type == pygame.QUIT:
+            exit(0)
+
+while running:
     clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit(0)
-
     
     ball.draw()
     circle.draw()
-    rect.draw()
     pygame.display.flip()
     world.Step(1/60, 6, 0)
-    #ball.update()
+    circle.update()
 
     screen.fill((0, 0, 0), (0, 0, width, height))

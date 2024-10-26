@@ -17,12 +17,12 @@ world = b2World(gravity=(0, 60), doSleep=True)
 
 
 
-ball = Ball(screen,world, pixels_to_world((width/2 , height/2-circle_radius+ballradius*2)), ballradius / PPM)
+ball = Ball(screen,world, pixels_to_world((width/2 - 1 , height/2-circle_radius+ballradius*2)), ballradius / PPM)
 
 circle = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius / PPM)
 
 
-#rect = Rect(screen, world, pixels_to_world((width/2, height/2+ ballradius*5)), 350/PPM , 5/PPM)
+rect = Rect(screen, world, pixels_to_world((width/2, height/2+ ballradius*5)), 250/PPM , 5/PPM)
 
 cl = ContactListener(ball)
 world.contactListener = cl
@@ -37,9 +37,9 @@ while True:
     
     ball.draw()
     circle.draw()
-    #rect.draw()
+    rect.draw()
     pygame.display.flip()
     world.Step(1/60, 6, 0)
-    ball.update()
+    #ball.update()
 
     screen.fill((0, 0, 0), (0, 0, width, height))

@@ -51,7 +51,7 @@ class Circle:
         self.world = world
         self.position = position
         self.radius = radius
-        self.color = (255,255,200)
+        self.color = (255,255,255)
         self.thickness = thickness
 
         self.size = num_segments

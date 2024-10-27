@@ -22,7 +22,7 @@ ball = Ball(screen,world, pixels_to_world((width/2 , height/2)), ballradius / PP
 circle = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius / PPM, door_size=(ballradius*2)/PPM, rotate=1)
 #circle2 = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius/2 / PPM, door_size=(ballradius*2)/PPM, rotate=-1)
 
-triangle = Triangle(screen, world, pixels_to_world((width/2 , height/2)), height=circle_radius/2 / PPM, door_size=(ballradius*2)/PPM,rotate=-1)
+triangle = Triangle(screen, world, pixels_to_world((width/2 , height/2)), height=circle_radius / PPM, door_size=(ballradius*2+1)/PPM,rotate=0)
 
 shapes = [circle, triangle]
 world.contactListener = ContactListener(ball)

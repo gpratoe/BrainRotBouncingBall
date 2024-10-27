@@ -17,12 +17,15 @@ world = b2World(gravity=(0, 60), doSleep=True)
 
 
 
-ball = Ball(screen,world, pixels_to_world((width/2 - 1 , height/2-circle_radius+ballradius*2)), ballradius / PPM)
+ball = Ball(screen,world, pixels_to_world((width/2 , height/2)), ballradius / PPM)
 
-circle = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius / PPM, open_segments=40)
+circle = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius / PPM, door_size=(ballradius*2)/PPM, rotate=1)
+circle2 = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius/2 / PPM, door_size=(ballradius*2)/PPM, rotate=-1)
 
-cl = ContactListener(ball)
-world.contactListener = cl
+triangle = Triangle(screen, world, pixels_to_world((width/2 , height/2)), height=circle_radius / PPM, door_size=(ballradius*3)/PPM,rotate=-1)
+
+shapes = [circle, circle2, triangle]
+world.contactListener = ContactListener(ball)
 
 running = False
 
@@ -41,9 +44,14 @@ while running:
             exit(0)
     
     ball.draw()
-    circle.draw()
+    
+    for shape in shapes:
+        shape.draw()
+
     pygame.display.flip()
     world.Step(1/60, 6, 0)
-    circle.update()
+    
+    for shape in shapes:
+        shape.update()
 
     screen.fill((0, 0, 0), (0, 0, width, height))

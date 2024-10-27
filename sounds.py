@@ -25,7 +25,6 @@ class Sounds:
         #     sound.stop()
         
         note = self.sounds[self.song[self.next_note]]
-        print("Playing note: ", self.song[self.next_note])
         self.next_note = (self.next_note + 1) % self.song.__len__()
         note.play()
         

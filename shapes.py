@@ -113,7 +113,7 @@ class Triangle(Polygon):
         self.door_size = door_size
         self.height = height
         super().__init__(num_segments=3, screen=screen, world=world, position=position,
-                          open_segments=0, radius=height/2, rotate=rotate, thickness=thickness)
+                          open_segments=0, radius=height, rotate=rotate, thickness=thickness)
 
 
 
@@ -124,7 +124,7 @@ class Triangle(Polygon):
             y = self.radius * math.sin(angle)
             self.vertices.append((x, y))
 
-        length_door_wall = (self.height/2) - self.door_size  
+        length_door_wall = (self.height/2) - (self.door_size/2)  
         factor = (length_door_wall/self.height) # porporcion de un lado original que toma una de lasparedes que forman la puerta
 
         # calculo los vertices que estan entre el vertice 0 y 2, para poder dividir ese lado y hacer la puerta

@@ -6,8 +6,8 @@ import math
 
 class Ball:
     def __init__(self, screen, world, position, radius):
-        self.bloom_size = 1.5
-        self.bloom_surface = pygame.Surface(world_to_pixels((radius*2*self.bloom_size, radius*2*self.bloom_size)), pygame.SRCALPHA)
+        self.bloom_ratio = 1.5
+        self.bloom_surface = pygame.Surface((radius*2*self.bloom_ratio, radius*2*self.bloom_ratio), pygame.SRCALPHA)
         self.bloom_surface.set_alpha(128)
         self.screen = screen
         self.world = world
@@ -17,12 +17,12 @@ class Ball:
         self.inc_rad_flag = False
         self.ball = self.world.CreateDynamicBody(
             fixtures=b2FixtureDef(
-                shape=b2CircleShape(radius=self.radius),
+                shape=b2CircleShape(radius=scale_to_world(self.radius)),
                 density=0.5,
                 restitution=1,
                 friction=0.0),
             bullet=True,
-            position=(self.position))
+            position=(pixels_to_world(self.position)))
         
         self.ball.userData = self
     
@@ -34,7 +34,7 @@ class Ball:
             self.ball.DestroyFixture(self.ball.fixtures[0])
 
             new_fixture = b2FixtureDef(
-                shape=b2CircleShape(radius=self.radius),
+                shape=b2CircleShape(radius=scale_to_world(self.radius)),
                 density=0.5,
                 restitution=1,
                 friction=0
@@ -45,9 +45,13 @@ class Ball:
             self.inc_rad_flag = False
     
     def draw(self):
-        draw.circle(self.bloom_surface, self.color, world_to_pixels((self.radius*self.bloom_size,self.radius*self.bloom_size)), self.radius * PPM*self.bloom_size)
-        self.screen.blit(self.bloom_surface, world_to_pixels(self.ball.position - b2Vec2(self.radius*self.bloom_size, self.radius*self.bloom_size)))
-        draw.circle(self.screen, self.color, world_to_pixels(self.ball.position), self.radius * PPM)
+        new_position = world_to_pixels(self.ball.position)
+        bloom_radius = self.radius*self.bloom_ratio
+        center_bloom_surface = (bloom_radius, bloom_radius)
+
+        draw.circle(self.bloom_surface, self.color, center_bloom_surface, bloom_radius)
+        self.screen.blit(self.bloom_surface, new_position - center_bloom_surface)
+        draw.circle(self.screen, self.color, new_position, self.radius)
 
 
 
@@ -55,7 +59,7 @@ class Polygon:
     def __init__(self, screen,world,position,radius, num_segments=3, thickness=3, open_segments=0, rotate=0):
         self.screen = screen
         self.world = world
-        self.position = position
+        self.position = b2Vec2(position)
         self.radius = radius
         self.color = (255,255,255)
         self.thickness = thickness
@@ -64,12 +68,10 @@ class Polygon:
         self.open_segments = open_segments
         self.vertices = []
         self.__setup_vertices__()
-        
-        self.pixel_vertices = [world_to_pixels((x + self.position[0], y + self.position[1])) for x,y in self.vertices]
 
-        self.polygon = self.world.CreateStaticBody(position=position,
+        self.polygon = self.world.CreateStaticBody(position=pixels_to_world(position),
                                                     fixtures=b2FixtureDef(
-                                                        shape=b2ChainShape(vertices_chain=self.vertices),
+                                                        shape=b2ChainShape(vertices_chain=vertices_to_world(self.vertices, self.position)),
                                                         density=1.0,
                                                         friction=0.0,
                                                         restitution=1.0),
@@ -80,17 +82,17 @@ class Polygon:
         total_segments = (self.size - self.open_segments)
         for i in range(total_segments + 1):
             angle = i * (2 * math.pi / self.size)
-            x = self.radius * math.cos(angle) #+ position[0]
-            y = self.radius * math.sin(angle) #+ position[1]
+            x = self.radius * math.cos(angle) + self.position[0]
+            y = self.radius * math.sin(angle) + self.position[1]
             self.vertices.append((x, y))
 
     def draw(self):
-        draw.lines(self.screen, self.color,False, self.pixel_vertices, self.thickness)
+        draw.lines(self.screen, self.color,False, self.vertices, self.thickness)
 
     def update(self):
         self.polygon.angle += 0.01 if self.rotate > 0 else (0 if self.rotate == 0 else -0.01)
-        self.pixel_vertices = [world_to_pixels(b2Mul(self.polygon.transform, point)) for point in self.vertices]
-         
+        world_vertices = self.polygon.fixtures[0].shape.vertices
+        self.vertices = [world_to_pixels(b2Mul(self.polygon.transform, point)) for point in world_vertices]
         
 class Circle(Polygon):
     def __init__(self, screen, world, position, radius, rotate=0, thickness=3,  door_size=0):
@@ -126,8 +128,8 @@ class Triangle(Polygon):
     def __setup_vertices__(self):
         for i in range(3):
             angle = i * (2 * math.pi / self.size) 
-            x = self.radius * math.cos(angle)
-            y = self.radius * math.sin(angle)
+            x = self.radius * math.cos(angle) + self.position[0]
+            y = self.radius * math.sin(angle) + self.position[1]
             self.vertices.append((x, y))
 
 

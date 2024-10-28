@@ -17,12 +17,12 @@ world = b2World(gravity=(0, 60), doSleep=True)
 
 
 
-ball = Ball(screen,world, pixels_to_world((width/2 , height/2)), ballradius / PPM)
+ball = Ball(screen,world, (width/2 , height/2), ballradius)
 
-circle = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius / PPM, door_size=(ballradius*10)/PPM, rotate=1)
-circle2 = Circle(screen, world, pixels_to_world((width/2 , height/2)), circle_radius*0.80 / PPM, door_size=(ballradius*5)/PPM, rotate=-1)
+circle = Circle(screen, world, (width/2 , height/2), circle_radius, door_size=(ballradius*10), rotate=1)
+circle2 = Circle(screen, world, (width/2 , height/2), circle_radius*0.80, door_size=(ballradius*5), rotate=-1)
 
-triangle = Triangle(screen, world, pixels_to_world((width/2 , height/2)), height=circle_radius / PPM, door_size=(ballradius*3)/PPM,rotate=1)
+triangle = Triangle(screen, world, (width/2 , height/2), height=circle_radius, door_size=ballradius*3,rotate=1)
 
 shapes = [circle, circle2, triangle]
 world.contactListener = ContactListener(ball)

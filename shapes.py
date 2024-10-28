@@ -6,6 +6,9 @@ import math
 
 class Ball:
     def __init__(self, screen, world, position, radius):
+        self.bloom_size = 1.5
+        self.bloom_surface = pygame.Surface(world_to_pixels((radius*2*self.bloom_size, radius*2*self.bloom_size)), pygame.SRCALPHA)
+        self.bloom_surface.set_alpha(128)
         self.screen = screen
         self.world = world
         self.position = position
@@ -42,7 +45,10 @@ class Ball:
             self.inc_rad_flag = False
     
     def draw(self):
+        draw.circle(self.bloom_surface, self.color, world_to_pixels((self.radius*self.bloom_size,self.radius*self.bloom_size)), self.radius * PPM*self.bloom_size)
+        self.screen.blit(self.bloom_surface, world_to_pixels(self.ball.position - b2Vec2(self.radius*self.bloom_size, self.radius*self.bloom_size)))
         draw.circle(self.screen, self.color, world_to_pixels(self.ball.position), self.radius * PPM)
+
 
 
 class Polygon:

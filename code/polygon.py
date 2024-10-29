@@ -34,12 +34,12 @@ class Polygon:
             self.vertices.append((x, y))
 
     def draw(self):
-        self.hue = (self.hue + 0.001) % 1
+        self.hue = (self.hue + utils.delta_time/10) % 1
         self.color = utils.hue_to_RGB(self.hue)
         draw.lines(utils.screen, self.color,False, self.vertices, self.thickness)
 
     def update(self):
-        self.polygon.angle += self.rotate_speed
+        self.polygon.angle += self.rotate_speed * utils.delta_time
         world_vertices = self.polygon.fixtures[0].shape.vertices
         self.vertices = [utils.world_to_pixels(b2Mul(self.polygon.transform, point)) for point in world_vertices]
         

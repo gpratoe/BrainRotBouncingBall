@@ -14,7 +14,6 @@ circle_radius = 40
 
 sounds = Sounds()
 sounds.set_sound("sounds/basic1.wav")
-clock = pygame.time.Clock()
 utils.screen = pygame.display.set_mode((width, height))
 utils.world = b2World(gravity=(0, 60), doSleep=True)
 
@@ -25,15 +24,15 @@ ball = Ball((width/2 , height/2), ballradius)
 
 
 shapes = []
-num_circles = 10 
-rotate_speed = 0.01
+num_circles = 20 
+rotate_speed = 0.5
 hue = 0
 
 for i in range (1,num_circles+1):
     circle = Circle((width/2 , height/2), radius=circle_radius, door_size=ballradius*2*i, rotate_speed=rotate_speed, hue=hue)
 
     circle_radius += 15
-    rotate_speed += 0.005
+    rotate_speed += 0.25
     hue += 1/num_circles
     
 
@@ -52,7 +51,9 @@ while True:
                 exit(0)
 
     while running:
-        clock.tick(60)
+
+        utils.calculate_dt()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit(0)
@@ -66,7 +67,7 @@ while True:
             shape.draw()
 
         pygame.display.update()
-        utils.world.Step(1/60, 6, 0)
+        utils.world.Step(utils.delta_time, 6, 0)
 
         for shape in shapes:
             shape.update()

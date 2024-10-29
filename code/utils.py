@@ -6,7 +6,7 @@ class Utils:
     def __init__(self):
         self.world = None
         self.screen = None
-        
+
         self.delta_time = 0
         self.clock = pygame.time.Clock()
         self.PPM = 10
@@ -36,5 +36,7 @@ class Utils:
     def hue_to_RGB(self, hue):
         return tuple(int(i * 255) for i in colorsys.hsv_to_rgb(hue, 1, 1))
 
+    def calculate_dt(self):
+        self.delta_time = self.clock.tick(60) / 1000
 
 utils = Utils()

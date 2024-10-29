@@ -1,8 +1,7 @@
-import math
 import pygame
 from shapes import *
 from Box2D import b2World
-from utils import *
+from utils import utils
 from contactlistener import ContactListener
 from pygame import Vector2
 from sounds import Sounds
@@ -74,7 +73,7 @@ while True:
             shape.update()
 
         
-        if len(shapes) > 0 and Vector2(width/2,height/2).distance_to(scale_to_pixels(ball.ball.position)) > shapes[0].radius:
+        if len(shapes) > 0 and Vector2(width/2,height/2).distance_to(utils.scale_to_pixels(ball.ball.position)) > shapes[0].radius:
             shapes[0].polygon.DestroyFixture(shapes[0].polygon.fixtures[0])
             sounds.play_single_sound()
             shapes.pop(0)

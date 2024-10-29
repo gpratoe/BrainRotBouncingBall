@@ -1,10 +1,8 @@
-import pygame
-import time
-from pygame import draw
-from Box2D import (b2CircleShape, b2FixtureDef, b2LoopShape, b2PolygonShape, b2Vec2, b2ChainShape, b2Mul, Box2D) 
-from utils import *
-import random
 import math
+import pygame
+from pygame import draw
+from Box2D import (b2CircleShape, b2FixtureDef, b2PolygonShape, b2Vec2, b2ChainShape, b2Mul) 
+from utils import utils
 
 class Ball:
     def __init__(self, screen, world, position, radius):
@@ -19,12 +17,12 @@ class Ball:
         self.inc_rad_flag = False
         self.ball = self.world.CreateDynamicBody(
             fixtures=b2FixtureDef(
-                shape=b2CircleShape(radius=scale_to_world(self.radius)),
+                shape=b2CircleShape(radius=utils.scale_to_world(self.radius)),
                 density=0.5,
                 restitution=1,
                 friction=0.0),
             bullet=True,
-            position=(pixels_to_world(self.position)))
+            position=(utils.pixels_to_world(self.position)))
         
         self.ball.userData = self
     
@@ -36,7 +34,7 @@ class Ball:
             self.ball.DestroyFixture(self.ball.fixtures[0])
 
             new_fixture = b2FixtureDef(
-                shape=b2CircleShape(radius=scale_to_world(self.radius)),
+                shape=b2CircleShape(radius=utils.scale_to_world(self.radius)),
                 density=0.5,
                 restitution=1,
                 friction=0
@@ -47,7 +45,7 @@ class Ball:
             self.inc_rad_flag = False
     
     def draw(self):
-        new_position = world_to_pixels(self.ball.position)
+        new_position = utils.world_to_pixels(self.ball.position)
         bloom_radius = self.radius*self.bloom_ratio
         center_bloom_surface = (bloom_radius, bloom_radius)
 
@@ -72,9 +70,9 @@ class Polygon:
         self.vertices = []
         self.__setup_vertices__()
 
-        self.polygon = self.world.CreateStaticBody(position=pixels_to_world(position),
+        self.polygon = self.world.CreateStaticBody(position=utils.pixels_to_world(position),
                                                     fixtures=b2FixtureDef(
-                                                        shape=b2ChainShape(vertices_chain=vertices_to_world(self.vertices, self.position)),
+                                                        shape=b2ChainShape(vertices_chain=utils.vertices_to_world(self.vertices, self.position)),
                                                         density=1.0,
                                                         friction=0.0,
                                                         restitution=1.0),
@@ -91,13 +89,13 @@ class Polygon:
 
     def draw(self):
         self.hue = (self.hue + 0.001) % 1
-        self.color = hue_to_RGB(self.hue)
+        self.color = utils.hue_to_RGB(self.hue)
         draw.lines(self.screen, self.color,False, self.vertices, self.thickness)
 
     def update(self):
         self.polygon.angle += self.rotate_speed
         world_vertices = self.polygon.fixtures[0].shape.vertices
-        self.vertices = [world_to_pixels(b2Mul(self.polygon.transform, point)) for point in world_vertices]
+        self.vertices = [utils.world_to_pixels(b2Mul(self.polygon.transform, point)) for point in world_vertices]
         
 class Circle(Polygon):
     def __init__(self, screen, world, position, radius, rotate_speed=0.1, thickness=3,  door_size=0, hue=0):
@@ -157,40 +155,3 @@ class Triangle(Polygon):
         door_vertex2_y = (1-factor) * self.vertices[0][1] + factor * self.vertices[2][1]
         
         self.vertices.insert(0, (door_vertex2_x, door_vertex2_y))
-
-
-class Rect:
-    def __init__(self, screen, world, position, width, height):
-        self.screen = screen
-        self.world = world
-        self.position = b2Vec2(position[0], position[1]) 
-        self.width = width 
-        self.height = height
-        self.color = (255, 255, 255)
-        
-        self.rect = self.world.CreateStaticBody(
-            position=self.position,
-            fixtures=b2FixtureDef(
-                shape=b2PolygonShape(box=(self.width/2, self.height/2)), 
-                density=1.0
-            ),
-            bullet=True
-        )
-        self.rect.userData = self
-
-    def draw(self):
-        position_in_pixels = world_to_pixels(self.rect.position)
-        
-        rect_width = int(self.width * PPM )
-        rect_height = int(self.height * PPM)
-        
-        pygame.draw.rect(
-            self.screen,
-            self.color,
-            pygame.Rect(
-                position_in_pixels[0] - rect_width/2,  # Centrar el rectángulo
-                position_in_pixels[1] - rect_height/2,
-                rect_width,
-                rect_height
-            )
-        )

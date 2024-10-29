@@ -1,16 +1,18 @@
 import colorsys
 import pygame
 from Box2D import b2Vec2
+from sounds import Sounds
 
 class Utils:
     def __init__(self):
         self.world = None
         self.screen = None
+        self.PPM = 10
 
         self.delta_time = 0
         self.clock = pygame.time.Clock()
-        self.PPM = 10
 
+        self.sounds = Sounds()
 
     def world_to_pixels(self, world_coords):
         return b2Vec2(int(world_coords[0] * self.PPM), int(world_coords[1] * self.PPM))

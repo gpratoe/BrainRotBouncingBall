@@ -3,17 +3,16 @@ from Box2D import b2World
 from utils import utils
 from contactlistener import ContactListener
 from pygame import Vector2
-from sounds import Sounds
 from ball import Ball
 from circle import Circle
 
-width, height = 700, 700
-ballradius = 10
-circle_radius = 40
+factor = 1
+width, height = 700/factor, 700/factor
+ballradius = 10/factor
+circle_radius = 40/factor
 
 
-sounds = Sounds()
-sounds.set_sound("sounds/basic1.wav")
+utils.sounds.set_sound("sounds/basic1.wav")
 utils.screen = pygame.display.set_mode((width, height))
 utils.world = b2World(gravity=(0, 60), doSleep=True)
 
@@ -29,7 +28,7 @@ rotate_speed = 0.5
 hue = 0
 
 for i in range (1,num_circles+1):
-    circle = Circle((width/2 , height/2), radius=circle_radius, door_size=ballradius*2*i, rotate_speed=rotate_speed, hue=hue)
+    circle = Circle((width/2 , height/2), radius=circle_radius, door_size=ballradius*2*i, rotate_speed=rotate_speed, hue=hue, segs=25)
 
     circle_radius += 15
     rotate_speed += 0.25
@@ -72,10 +71,12 @@ while True:
         for shape in shapes:
             shape.update()
 
+        ball.update()
+
         
-        if len(shapes) > 0 and Vector2(width/2,height/2).distance_to(utils.scale_to_pixels(ball.ball.position)) > shapes[0].radius:
+        if len(shapes) > 0 and Vector2(width/2,height/2).distance_to(utils.scale_to_pixels(ball.ball.position)) > shapes[0].radius - (ball.radius-(ball.radius*0.1)):
             shapes[0].polygon.DestroyFixture(shapes[0].polygon.fixtures[0])
-            sounds.play_single_sound()
+            utils.sounds.play_single_sound()
             shapes.pop(0)
 
         utils.screen.fill((0, 0, 0), (0, 0, width, height))

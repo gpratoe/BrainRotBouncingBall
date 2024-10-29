@@ -3,8 +3,8 @@ from utils import utils
 from polygon import Polygon
 
 class Circle(Polygon):
-    def __init__(self, position, radius, rotate_speed=0.1, thickness=3,  door_size=0, hue=0):
-        SEGMENTS = 360
+    def __init__(self, position, radius, rotate_speed=0.1, thickness=3,  door_size=0, hue=0, segs = 200):
+        SEGMENTS = segs
         circumference = 2 * math.pi * radius
         # explicacion: armo una "bola" tomando el tamaño de la puerta como su diámetro, de esa nueva bola quiero saber cuantos segmentos
         # se necesitan para armar la mitad de su circumferencia. Estos segmentes son los que voy a cortar de la circumferencia original,

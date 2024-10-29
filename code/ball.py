@@ -9,7 +9,7 @@ class Ball:
         self.bloom_surface = pygame.Surface((radius*2*self.bloom_ratio, radius*2*self.bloom_ratio), pygame.SRCALPHA)
         self.bloom_surface.set_alpha(128)
         self.position = position
-        self.color = (255,0,10)
+        self.color = (255,255,255)
         self.radius = radius
         self.inc_rad_flag = False
         self.ball = utils.world.CreateDynamicBody(
@@ -26,7 +26,7 @@ class Ball:
 
     def update(self):
         if self.inc_rad_flag:
-            self.radius += 0.1
+            self.radius += (self.radius*0.03)
 
             self.ball.DestroyFixture(self.ball.fixtures[0])
 
@@ -46,6 +46,6 @@ class Ball:
         bloom_radius = self.radius*self.bloom_ratio
         center_bloom_surface = (bloom_radius, bloom_radius)
 
-        draw.circle(self.bloom_surface, self.color, center_bloom_surface, bloom_radius)
-        utils.screen.blit(self.bloom_surface, new_position - center_bloom_surface)
+        #draw.circle(self.bloom_surface, self.color, center_bloom_surface, bloom_radius)
+        #utils.screen.blit(self.bloom_surface, new_position - center_bloom_surface)
         draw.circle(utils.screen, self.color, new_position, self.radius)

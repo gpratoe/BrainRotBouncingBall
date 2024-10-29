@@ -1,7 +1,9 @@
 import pygame
+import time
 from pygame import draw
 from Box2D import (b2CircleShape, b2FixtureDef, b2LoopShape, b2PolygonShape, b2Vec2, b2ChainShape, b2Mul, Box2D) 
 from utils import *
+import random
 import math
 
 class Ball:
@@ -56,14 +58,15 @@ class Ball:
 
 
 class Polygon:
-    def __init__(self, screen,world,position,radius, num_segments=3, thickness=3, open_segments=0, rotate=0):
+    def __init__(self, screen,world,position,radius, num_segments=3, thickness=3, open_segments=0, rotate_speed=0.01, hue=0):
         self.screen = screen
         self.world = world
         self.position = b2Vec2(position)
         self.radius = radius
         self.color = (255,255,255)
+        self.hue = hue
         self.thickness = thickness
-        self.rotate = rotate
+        self.rotate_speed = rotate_speed
         self.size = num_segments
         self.open_segments = open_segments
         self.vertices = []
@@ -87,15 +90,17 @@ class Polygon:
             self.vertices.append((x, y))
 
     def draw(self):
+        self.hue = (self.hue + 0.001) % 1
+        self.color = hue_to_RGB(self.hue)
         draw.lines(self.screen, self.color,False, self.vertices, self.thickness)
 
     def update(self):
-        self.polygon.angle += 0.01 if self.rotate > 0 else (0 if self.rotate == 0 else -0.01)
+        self.polygon.angle += self.rotate_speed
         world_vertices = self.polygon.fixtures[0].shape.vertices
         self.vertices = [world_to_pixels(b2Mul(self.polygon.transform, point)) for point in world_vertices]
         
 class Circle(Polygon):
-    def __init__(self, screen, world, position, radius, rotate=0, thickness=3,  door_size=0):
+    def __init__(self, screen, world, position, radius, rotate_speed=0.1, thickness=3,  door_size=0, hue=0):
         SEGMENTS = 360
         circumference = 2 * math.pi * radius
         # explicacion: armo una "bola" tomando el tamaño de la puerta como su diámetro, de esa nueva bola quiero saber cuantos segmentos
@@ -114,14 +119,14 @@ class Circle(Polygon):
         open_segs = segments_to_cut if segments_to_cut < SEGMENTS/2 else SEGMENTS - segments_to_cut # no se puede cortar mas que la mitad
         
         super().__init__(num_segments=SEGMENTS, screen=screen, world=world, position=position,
-                          radius=radius, thickness=thickness, open_segments=open_segs, rotate=rotate)
+                          radius=radius, thickness=thickness, open_segments=open_segs, rotate_speed=rotate_speed, hue=hue)
 
 class Triangle(Polygon):
-    def __init__(self, screen, world, position, height, rotate=0, thickness=3, door_size=0):
+    def __init__(self, screen, world, position, height, rotate_speed=0.1, thickness=3, door_size=0, hue=0):
         self.door_size = door_size
         self.height = height
         super().__init__(num_segments=3, screen=screen, world=world, position=position,
-                          open_segments=0, radius=height/2, rotate=rotate, thickness=thickness)
+                          open_segments=0, radius=height/2, rotate_speed=rotate_speed, thickness=thickness, hue=hue)
 
 
 

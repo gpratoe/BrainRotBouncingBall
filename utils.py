@@ -1,3 +1,4 @@
+import colorsys
 from Box2D import b2Vec2
 
 PPM = 10 # factor de escala para box2d
@@ -22,3 +23,6 @@ def list_to_pixels(list):
 
 def vertices_to_world(vertices, position):
     return list_to_world([(b2Vec2(vertice) - position) for vertice in vertices])
+
+def hue_to_RGB(hue):
+    return tuple(int(i * 255) for i in colorsys.hsv_to_rgb(hue, 1, 1))

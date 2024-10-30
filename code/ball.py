@@ -5,11 +5,10 @@ from utils import utils
 
 class Ball:
     def __init__(self, position, radius):
-        self.bloom_ratio = 1.5
-        self.bloom_surface = pygame.Surface((radius*2*self.bloom_ratio, radius*2*self.bloom_ratio), pygame.SRCALPHA)
-        self.bloom_surface.set_alpha(128)
+        self.trail_surface = pygame.Surface(utils.screen.get_size(), pygame.SRCALPHA)
         self.position = position
         self.color = (255,255,255)
+        self.hue = 0
         self.radius = radius
         self.inc_rad_flag = False
         self.ball = utils.world.CreateDynamicBody(
@@ -43,9 +42,13 @@ class Ball:
     
     def draw(self):
         new_position = utils.world_to_pixels(self.ball.position)
-        bloom_radius = self.radius*self.bloom_ratio
-        center_bloom_surface = (bloom_radius, bloom_radius)
 
-        #draw.circle(self.bloom_surface, self.color, center_bloom_surface, bloom_radius)
-        #utils.screen.blit(self.bloom_surface, new_position - center_bloom_surface)
-        draw.circle(utils.screen, self.color, new_position, self.radius)
+        self.hue = (self.hue + utils.delta_time/10) % 1
+        self.color = utils.hue_to_RGB(self.hue)
+        draw.circle(self.trail_surface, self.color, new_position, self.radius)
+
+        utils.screen.blit(self.trail_surface, (0,0))
+        self.trail_surface.fill((255,255,255,200), special_flags=pygame.BLEND_RGBA_MULT) # pinto la nueva surface de blanco con alpha en 200 por cada cuadro
+        
+        
+        draw.circle(utils.screen, (255,255,255), new_position, self.radius)

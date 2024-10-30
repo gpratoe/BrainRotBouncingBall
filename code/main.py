@@ -5,6 +5,7 @@ from contactlistener import ContactListener
 from pygame import Vector2
 from ball import Ball
 from circle import Circle
+from triangle import Triangle
 
 factor = 1
 width, height = 700/factor, 700/factor
@@ -28,7 +29,7 @@ rotate_speed = 0.5
 hue = 0
 
 for i in range (1,num_circles+1):
-    circle = Circle((width/2 , height/2), radius=circle_radius, door_size=ballradius*2*i, rotate_speed=rotate_speed, hue=hue, segs=25)
+    circle = Circle((width/2 , height/2), radius=circle_radius, door_size=ballradius*2*i, rotate_speed=rotate_speed, hue=hue, segs=50)
 
     circle_radius += 15
     rotate_speed += 0.25
@@ -50,7 +51,7 @@ while True:
                 exit(0)
 
     while running:
-
+        print(utils.clock.get_fps())
         utils.calculate_dt()
 
         for event in pygame.event.get():
@@ -71,12 +72,11 @@ while True:
         for shape in shapes:
             shape.update()
 
-        ball.update()
-
+        #ball.update()
         
         if len(shapes) > 0 and Vector2(width/2,height/2).distance_to(utils.scale_to_pixels(ball.ball.position)) > shapes[0].radius - (ball.radius-(ball.radius*0.1)):
             shapes[0].polygon.DestroyFixture(shapes[0].polygon.fixtures[0])
             utils.sounds.play_single_sound()
             shapes.pop(0)
 
-        utils.screen.fill((0, 0, 0), (0, 0, width, height))
+        utils.screen.fill((0,0,0), (0, 0, width, height))

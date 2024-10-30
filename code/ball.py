@@ -45,10 +45,10 @@ class Ball:
 
         self.hue = (self.hue + utils.delta_time/10) % 1
         self.color = utils.hue_to_RGB(self.hue)
-        draw.circle(self.trail_surface, self.color, new_position, self.radius)
+        draw.circle(self.trail_surface, self.color, new_position, self.radius,)
 
         utils.screen.blit(self.trail_surface, (0,0))
         self.trail_surface.fill((255,255,255,200), special_flags=pygame.BLEND_RGBA_MULT) # pinto la nueva surface de blanco con alpha en 200 por cada cuadro
         
         
-        draw.circle(utils.screen, (255,255,255), new_position, self.radius)
+        draw.circle(utils.screen, (255,255,255), new_position, self.radius-self.radius*0.2)

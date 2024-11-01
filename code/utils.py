@@ -13,6 +13,7 @@ class Utils:
         self.clock = pygame.time.Clock()
 
         self.sounds = Sounds()
+        self.cl = None
 
     def world_to_pixels(self, world_coords):
         return b2Vec2(int(world_coords[0] * self.PPM), int(world_coords[1] * self.PPM))

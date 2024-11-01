@@ -2,11 +2,11 @@ import math
 from polygon import Polygon
 
 class Triangle(Polygon):
-    def __init__(self, position, height, rotate_speed=0.1, thickness=3, door_size=0, hue=0):
+    def __init__(self, position, height, rotate_speed=0.1, thickness=3, door_size=0, hue=0, animate_color=False):
         self.door_size = door_size
         self.height = height
         super().__init__(num_segments=3, position=position,
-                          open_segments=0, radius=height/2, rotate_speed=rotate_speed, thickness=thickness, hue=hue)
+                          open_segments=0, radius=height/2, rotate_speed=rotate_speed, thickness=thickness, hue=hue, animate_color=animate_color)
 
 
 

@@ -4,11 +4,12 @@ from Box2D import (b2CircleShape, b2FixtureDef)
 from utils import utils
 
 class Ball:
-    def __init__(self, position, radius):
+    def __init__(self, position, radius, hue = 0, animate_color=False):
         self.trail_surface = pygame.Surface(utils.screen.get_size(), pygame.SRCALPHA)
         self.position = position
         self.color = (255,255,255)
-        self.hue = 0
+        self.hue = hue
+        self.animate_color = animate_color
         self.radius = radius
         self.inc_rad_flag = False
         self.ball = utils.world.CreateDynamicBody(
@@ -39,11 +40,13 @@ class Ball:
             self.ball.CreateFixture(new_fixture)
 
             self.inc_rad_flag = False
+
     
     def draw(self):
         new_position = utils.world_to_pixels(self.ball.position)
 
-        self.hue = (self.hue + utils.delta_time/10) % 1
+        if self.animate_color:
+            self.hue = (self.hue + utils.delta_time/10) % 1
         self.color = utils.hue_to_RGB(self.hue)
         draw.circle(self.trail_surface, self.color, new_position, self.radius,)
 

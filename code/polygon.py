@@ -4,10 +4,11 @@ from Box2D import (b2FixtureDef, b2Vec2, b2ChainShape, b2Mul)
 from utils import utils
 
 class Polygon:
-    def __init__(self, position, radius, num_segments=3, thickness=3, open_segments=0, rotate_speed=0.01, hue=0):
+    def __init__(self, position, radius, num_segments=3, thickness=3, open_segments=0, rotate_speed=0.01, hue=0, animate_color=False):
         self.position = b2Vec2(position)
         self.radius = radius
         self.color = (255,255,255)
+        self.animate_color = animate_color
         self.hue = hue
         self.thickness = thickness
         self.rotate_speed = rotate_speed
@@ -34,7 +35,8 @@ class Polygon:
             self.vertices.append((x, y))
 
     def draw(self):
-        self.hue = (self.hue + utils.delta_time/10) % 1
+        if self.animate_color:
+            self.hue = (self.hue + utils.delta_time/10) % 1
         self.color = utils.hue_to_RGB(self.hue)
         draw.lines(utils.screen, self.color,False, self.vertices, self.thickness)
 

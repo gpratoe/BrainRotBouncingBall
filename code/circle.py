@@ -3,7 +3,7 @@ from utils import utils
 from polygon import Polygon
 
 class Circle(Polygon):
-    def __init__(self, position, radius, rotate_speed=0.1, thickness=3,  door_size=0, hue=0, segs = 200):
+    def __init__(self, position, radius, rotate_speed=0.1, thickness=3,  door_size=0, hue=0, segs = 200, animate_color=False):
         SEGMENTS = segs
         circumference = 2 * math.pi * radius
         # explicacion: armo una "bola" tomando el tamaño de la puerta como su diámetro, de esa nueva bola quiero saber cuantos segmentos
@@ -22,4 +22,4 @@ class Circle(Polygon):
         open_segs = segments_to_cut if segments_to_cut < SEGMENTS/2 else SEGMENTS - segments_to_cut # no se puede cortar mas que la mitad
         
         super().__init__(num_segments=SEGMENTS, position=position,radius=radius, thickness=thickness,
-                          open_segments=open_segs, rotate_speed=rotate_speed, hue=hue)
+                          open_segments=open_segs, rotate_speed=rotate_speed, hue=hue, animate_color=animate_color)

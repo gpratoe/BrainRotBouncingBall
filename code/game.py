@@ -11,6 +11,7 @@ class Game:
     def __init__(self, width, height, fps):
         self.width = width
         self.height = height
+        self.center = Vector2(width/2, height/2)
         self.fps = fps
         self.screen = pg.display.set_mode((width, height),pg.HWSURFACE | pg.DOUBLEBUF)
         self.background = pg.Surface(self.screen.get_size())
@@ -52,57 +53,61 @@ class Game:
     def colission_handler(self):
         bodyA = utils.cl.bodyA
         bodyB = utils.cl.bodyB
-        if bodyA.userData.__class__.__name__ == "Ball" or bodyB.userData.__class__.__name__ == "Ball":
-            utils.sounds.play_composite()
-            if bodyA.userData.__class__.__name__ == "Ball":
-                bodyA.linearVelocity += (0, 1)
-            else:
-                bodyB.linearVelocity += (0, 1)
-        
+        for body in [bodyA, bodyB]:
+            if isinstance(body.userData, Ball):
+                utils.sounds.play_composite()
+                body.linearVelocity += (0, 1)
+                break
+    
     def setup_level(self):
         utils.sounds.set_sound("sounds/basic1.wav")
         ballradius = 10
-        circle_radius = 100
-
-        self.balls.append(Ball((self.width/2 , self.height/2), radius=ballradius, hue=190/355))
         
+        circle_radius = 100
         num_circles = 7
         rotate_speed = 0.5
         hue = 0
-        inc = 1
-        hue_boquita = [210/355, 60/355]
+
+        self.balls.append(Ball((self.width/2 , self.height/2), radius=ballradius, hue=190/355))
+        
         for i in range (1,num_circles+1):
-            circle = Circle((self.width/2 , self.height/2), radius=circle_radius,rotate_speed=rotate_speed, hue=hue_boquita[(i+1)%2], door_size=ballradius*2, segs=50, thickness=4)
+            circle = Circle(
+                (self.width/2 , self.height/2),
+                 radius=circle_radius, 
+                 rotate_speed=rotate_speed,
+                 hue=hue, 
+                 door_size=ballradius*2*i,
+                 segs=50,
+                 thickness=4, 
+                 animate_color=True
+            )
+            self.shapes.append(circle)
+            
             circle_radius += 15
             rotate_speed += 0.25
             hue += 1/num_circles
-            inc += 2
-            self.shapes.append(circle)
+
+    def simulation_logic(self):
+        ball_pos = Vector2(utils.scale_to_pixels(self.balls[0].ball.position))
+
+        if self.shapes and Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius - (self.balls[0].radius-(self.balls[0].radius*0.1)):
+            self.shapes[0].polygon.DestroyFixture(self.shapes[0].polygon.fixtures[0])
+            utils.sounds.play_single_sound()
+            self.shapes.pop(0)
 
     def run(self):
         self.setup_level()
-        while True:
-            while not self.running:
-                for event in pg.event.get():
-                    if event.type == pg.KEYDOWN:
-                        if event.key == pg.K_p:
-                            self.running = True
-                    if event.type == pg.QUIT:
-                        exit(0)
+        while True:            
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    exit(0)
+                elif event.type == pg.KEYDOWN and event.key == pg.K_p:
+                    self.running = not self.running
 
-            while self.running:
+            if self.running:
+                #print(self.clock.get_fps())
                 utils.calculate_dt()
-                for event in pg.event.get():
-                    if event.type == pg.QUIT:
-                        exit(0)
-                    if event.type == pg.KEYDOWN:
-                        if event.key == pg.K_p:
-                            self.running = False
-
                 self.draw()
                 self.update()
-
-                if len(self.shapes) > 0 and Vector2(self.width/2,self.height/2).distance_to(utils.scale_to_pixels(self.balls[0].ball.position)) > self.shapes[0].radius - (self.balls[0].radius-(self.balls[0].radius*0.1)):
-                    self.shapes[0].polygon.DestroyFixture(self.shapes[0].polygon.fixtures[0])
-                    utils.sounds.play_single_sound()
-                    self.shapes.pop(0)
+                self.simulation_logic()
+        

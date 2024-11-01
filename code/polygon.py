@@ -44,4 +44,8 @@ class Polygon:
         self.polygon.angle += self.rotate_speed * utils.delta_time
         world_vertices = self.polygon.fixtures[0].shape.vertices
         self.vertices = [utils.world_to_pixels(b2Mul(self.polygon.transform, point)) for point in world_vertices]
-        
+    
+    def cleanup(self):
+        if self.polygon:
+            utils.world.DestroyBody(self.polygon)  
+            self.polygon = None  

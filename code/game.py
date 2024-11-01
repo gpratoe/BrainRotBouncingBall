@@ -23,6 +23,7 @@ class Game:
         self.running = False
         self.shapes = []
         self.balls = []
+        self.update_rect = pg.Rect(0, 0, width/2, height/2)
 
         # setup utils        
         utils.screen = self.screen
@@ -38,14 +39,14 @@ class Game:
         
         for ball in self.balls:
             ball.update()
-    
+
     def draw(self):
         self.screen.blit(self.background, (0, 0)) # clear screen
         
-        for shape in self.shapes:
-            shape.draw()
         for ball in self.balls:
             ball.draw()
+        for shape in self.shapes:
+            shape.draw()
 
         pg.display.flip()
         self.clock.tick(self.fps)
@@ -93,6 +94,8 @@ class Game:
         if self.shapes and Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius - (self.balls[0].radius-(self.balls[0].radius*0.1)):
             self.shapes[0].polygon.DestroyFixture(self.shapes[0].polygon.fixtures[0])
             utils.sounds.play_single_sound()
+
+            self.shapes[0].cleanup()
             self.shapes.pop(0)
 
     def run(self):
@@ -105,7 +108,7 @@ class Game:
                     self.running = not self.running
 
             if self.running:
-                #print(self.clock.get_fps())
+                print(self.clock.get_fps())
                 utils.calculate_dt()
                 self.draw()
                 self.update()

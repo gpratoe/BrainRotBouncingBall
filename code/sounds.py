@@ -3,6 +3,7 @@ from random import randint as ri
 
 class Sounds:
     def __init__(self):
+        mixer.pre_init(44100,16,2,4096)
         mixer.init()
 
         self.sounds = {"single": None,

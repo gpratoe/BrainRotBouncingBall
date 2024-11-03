@@ -1,25 +1,41 @@
 import math
 from utils import utils
 from polygon import Polygon
+from pygame import draw
 
 class Circle(Polygon):
-    def __init__(self, position, radius, rotate_speed=0.1, thickness=3,  door_size=0, hue=0, segs = 200, animate_color=False):
+    def __init__(self, position, radius, rotate_speed=0.1, thickness=3,  gap_angle=30, hue=0, segs = 200, animate_color=False):
+        self.gap_angle = gap_angle
+        self.start_angle = self.gap_angle
+        self.end_angle = 0
         SEGMENTS = segs
-        circumference = 2 * math.pi * radius
-        # explicacion: armo una "bola" tomando el tamaño de la puerta como su diámetro, de esa nueva bola quiero saber cuantos segmentos
-        # se necesitan para armar la mitad de su circumferencia. Estos segmentes son los que voy a cortar de la circumferencia original,
-        # lo cual me asegura que la puerta tenga el tamaño deseado y no lo arruine la curvatura del circulo.
-        # Si calculara la cantidad de segmentos basandome solo en el tamaño de la puerta, al proyectarla sobre el circulo, la curvatura
-        # de este haría que la puerta sea mas chica de lo que se espera.
-        # 
-        # **El tamaño final de la puerta es un poquito mas grande que el especificado pero funciona bien para lo que se necesita.**
 
-        door_to_ball_circumference = math.pi * door_size
-        door_to_ball_interest_section = door_to_ball_circumference / 2
-
-        segments_to_cut = math.ceil(door_to_ball_interest_section / circumference * SEGMENTS)
-
-        open_segs = segments_to_cut if segments_to_cut < SEGMENTS/2 else SEGMENTS - segments_to_cut # no se puede cortar mas que la mitad
-        
+        segments_to_cut = int((gap_angle * SEGMENTS) / 360)
         super().__init__(num_segments=SEGMENTS, position=position,radius=radius, thickness=thickness,
-                          open_segments=open_segs, rotate_speed=rotate_speed, hue=hue, animate_color=animate_color)
+                          open_segments=segments_to_cut, rotate_speed=rotate_speed, hue=hue, animate_color=animate_color)
+        
+    
+    def draw(self):
+        if self.animate_color:
+            self.hue = (self.hue + utils.delta_time / 10) % 1
+        self.color = utils.hue_to_RGB(self.hue)
+
+        if self.gap_angle == 0:
+            draw.circle(utils.screen, self.color, self.position, self.radius, self.thickness)
+        else:
+            draw.arc(
+                utils.screen,
+                self.color,
+                (self.position[0] - self.radius, self.position[1] - self.radius, self.radius * 2, self.radius * 2),
+                math.radians(self.start_angle),
+                math.radians(self.end_angle),
+                self.thickness
+            )
+
+    def update(self):
+        self.polygon.angle += self.rotate_speed * utils.delta_time
+
+        angle_increment = self.rotate_speed * utils.delta_time * (180 / math.pi)  
+
+        self.start_angle = (self.start_angle - angle_increment) % 360
+        self.end_angle = (self.end_angle - angle_increment) % 360

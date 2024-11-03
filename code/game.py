@@ -6,6 +6,7 @@ from contactlistener import ContactListener
 from ball import Ball
 from circle import Circle
 from triangle import Triangle
+from random import randint
 
 class Game:
     def __init__(self, width, height, fps):
@@ -30,6 +31,12 @@ class Game:
         utils.world = self.world
         utils.world.contactListener = ContactListener(self.colission_handler)
         utils.cl = utils.world.contactListener
+        utils.trail_surface = pg.Surface(self.screen.get_size(), pg.SRCALPHA)
+
+        # simulation utils
+        self.balls_distance_to_center = []
+        self.balls_gone = []
+
 
     def update(self):       
         utils.world.Step(utils.delta_time, 6, 0)
@@ -44,6 +51,10 @@ class Game:
         self.screen.blit(self.background, (0, 0)) # clear screen
         
         for ball in self.balls:
+            ball.draw_trail()
+        utils.screen.blit(utils.trail_surface, (0,0))
+        utils.trail_surface.fill((255,255,255,200), special_flags=pg.BLEND_RGBA_MULT) # pinto la nueva surface de blanco con alpha en 200 por cada cuadro
+        for ball in self.balls:
             ball.draw()
         for shape in self.shapes:
             shape.draw()
@@ -54,52 +65,70 @@ class Game:
     def colission_handler(self):
         bodyA = utils.cl.bodyA
         bodyB = utils.cl.bodyB
-        for body in [bodyA, bodyB]:
-            if isinstance(body.userData, Ball):
-                utils.sounds.play_composite()
-                body.linearVelocity += (0, 1)
-                break
-    
-    def setup_level(self):
-        utils.sounds.set_sound("sounds/basic1.wav")
-        ballradius = 10
-        
-        circle_radius = 100
-        num_circles = 7
-        rotate_speed = 0.5
-        hue = 0
+        isBall_bodyA = isinstance(bodyA.userData, Ball)
+        isBall_bodyB = isinstance(bodyB.userData, Ball)
+        if isBall_bodyA or isBall_bodyB:
+            utils.sounds.play_song()
 
-        self.balls.append(Ball((self.width/2 , self.height/2), radius=ballradius, hue=190/355))
+        # for body in [bodyA, bodyB]:
+        #     if isinstance(body.userData, Ball):
+        #         utils.sounds.play_song()
+        #         body.linearVelocity += (0, 1)
+        #         break
+        # if isBall_bodyA and isBall_bodyB:
+        #     if bodyA.userData.radius > bodyB.userData.radius and bodyA.userData.radius > 10:
+        #         bodyB.userData.radius -= bodyB.userData.radius*(randint(1, 15)/100)
+        #         bodyB.userData.inc_rad_flag = True
+        #     elif bodyB.userData.radius > bodyA.userData.radius and bodyB.userData.radius > 10:
+        #         bodyA.userData.radius -= bodyA.userData.radius*(randint(1, 15)/100)
+        #         bodyA.userData.inc_rad_flag = True
+        # else:
+        #     if isBall_bodyA and not isBall_bodyB and bodyA.userData.radius < 200:
+        #         bodyA.userData.radius += bodyA.userData.radius*(randint(5, 8)/100)
+        #         bodyA.userData.inc_rad_flag = True
+        #     elif isBall_bodyB and not isBall_bodyA and bodyB.userData.radius < 200:
+        #         bodyB.userData.radius += bodyB.userData.radius*(randint(5, 8)/100)
+        #         bodyB.userData.inc_rad_flag = True
         
-        for i in range (1,num_circles+1):
-            circle = Circle(
-                (self.width/2 , self.height/2),
-                 radius=circle_radius, 
-                 rotate_speed=rotate_speed,
-                 hue=hue, 
-                 door_size=ballradius*2*i,
-                 segs=50,
-                 thickness=4, 
-                 animate_color=True
-            )
-            self.shapes.append(circle)
-            
-            circle_radius += 15
-            rotate_speed += 0.25
-            hue += 1/num_circles
+        bodyA.linearVelocity += (0.01, 1) if isBall_bodyA else (0, 0)
+        bodyB.linearVelocity += (0.01, 1) if isBall_bodyB else (0, 0)
+
+    def setup_level(self):
+        utils.sounds.set_sound("sounds/fx/perfect-sf.wav")
+        
+        ballradius = 10
+        hues=[315/355, 190/355]
+
+        self.balls.append(Ball((self.width/2 - ballradius*2 , self.height/2 - 50), radius=ballradius, hue=hues[0]))
+        self.balls.append(Ball((self.width/2 + ballradius*2, self.height/2 - 50), radius=ballradius, hue=hues[1]))
+        circle = Circle(
+                    (self.width/2 , self.height/2),
+                    radius=200, 
+                    rotate_speed=0.5,
+                    hue=145/355, 
+                    gap_angle=20,
+                    segs=25,
+                    thickness=2, 
+                    animate_color=False
+                )
+        self.shapes.append(circle)
+
 
     def simulation_logic(self):
-        ball_pos = Vector2(utils.scale_to_pixels(self.balls[0].ball.position))
-
-        if self.shapes and Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius - (self.balls[0].radius-(self.balls[0].radius*0.1)):
-            self.shapes[0].polygon.DestroyFixture(self.shapes[0].polygon.fixtures[0])
-            utils.sounds.play_single_sound()
-
-            self.shapes[0].cleanup()
-            self.shapes.pop(0)
+        
+        for ball in self.balls:
+            ball_pos = Vector2(utils.scale_to_pixels(ball.ball.position))
+            if self.shapes and Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius and ball not in self.balls_gone:
+                #self.balls.append(Ball((self.width/2 - ball.radius*2 , self.height/2 - 50), radius=ball.radius, hue=ball.hue))
+                self.balls.append(Ball((self.width/2 + ball.radius*2, self.height/2 - 50), radius=ball.radius, hue=ball.hue))
+                self.balls_gone.append(ball)
+            if Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius + 200:
+                utils.world.DestroyBody(ball.ball)
+                self.balls.remove(ball)
 
     def run(self):
         self.setup_level()
+        pg.event.set_allowed([pg.QUIT, pg.KEYDOWN, pg.KEYUP])
         while True:            
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -112,5 +141,4 @@ class Game:
                 utils.calculate_dt()
                 self.draw()
                 self.update()
-                self.simulation_logic()
-        
+                self.simulation_logic()        

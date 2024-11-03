@@ -7,6 +7,7 @@ class Utils:
     def __init__(self):
         self.world = None
         self.screen = None
+        self.trail_surface = None
         self.PPM = 10
 
         self.delta_time = 0

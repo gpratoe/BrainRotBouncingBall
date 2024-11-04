@@ -4,7 +4,7 @@ from Box2D import (b2FixtureDef, b2Vec2, b2ChainShape, b2Mul)
 from utils import utils
 
 class Polygon:
-    def __init__(self, position, radius, num_segments=3, thickness=3, open_segments=0, rotate_speed=0.01, hue=0, animate_color=False):
+    def __init__(self, position, radius, num_segments=3, thickness=3, open_segments=0, rotate_speed=0.01, hue=0, animate_color=False, angle_start=0):
         self.position = b2Vec2(position)
         self.radius = radius
         self.color = (255,255,255)
@@ -15,6 +15,7 @@ class Polygon:
         self.size = num_segments
         self.open_segments = open_segments
         self.vertices = []
+        self.angle_start = math.radians(angle_start) 
         self.__setup_vertices__()
 
         self.polygon = utils.world.CreateStaticBody(position=utils.pixels_to_world(position),
@@ -29,7 +30,7 @@ class Polygon:
     def __setup_vertices__(self):
         total_segments = (self.size - self.open_segments)
         for i in range(total_segments + 1):
-            angle = i * (2 * math.pi / self.size)
+            angle = (i * (2 * math.pi / self.size)) - self.angle_start
             x = self.radius * math.cos(angle) + self.position[0]
             y = self.radius * math.sin(angle) + self.position[1]
             self.vertices.append((x, y))

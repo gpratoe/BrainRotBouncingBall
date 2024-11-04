@@ -4,15 +4,15 @@ from polygon import Polygon
 from pygame import draw
 
 class Circle(Polygon):
-    def __init__(self, position, radius, rotate_speed=0.1, thickness=3,  gap_angle=30, hue=0, segs = 200, animate_color=False):
+    def __init__(self, position, radius, rotate_speed=0.1, thickness=3,  gap_angle=30, hue=0, segs = 200, animate_color=False, angle_start = 0):
         self.gap_angle = gap_angle
-        self.start_angle = self.gap_angle
-        self.end_angle = 0
+        self.start_angle = self.gap_angle + angle_start
+        self.end_angle = 0 + angle_start
         SEGMENTS = segs
 
         segments_to_cut = int((gap_angle * SEGMENTS) / 360)
         super().__init__(num_segments=SEGMENTS, position=position,radius=radius, thickness=thickness,
-                          open_segments=segments_to_cut, rotate_speed=rotate_speed, hue=hue, animate_color=animate_color)
+                          open_segments=segments_to_cut, rotate_speed=rotate_speed, hue=hue, animate_color=animate_color, angle_start = angle_start)
         
     
     def draw(self):

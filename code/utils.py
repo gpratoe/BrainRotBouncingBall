@@ -40,7 +40,7 @@ class Utils:
     def hue_to_RGB(self, hue):
         return tuple(int(i * 255) for i in colorsys.hsv_to_rgb(hue, 1, 1))
 
-    def calculate_dt(self):
-        self.delta_time = self.clock.tick(60) / 1000
+    def calculate_dt(self, fps):
+        self.delta_time = self.clock.tick(fps) / 1000
 
 utils = Utils()

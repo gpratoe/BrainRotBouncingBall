@@ -67,64 +67,50 @@ class Game:
         bodyB = utils.cl.bodyB
         isBall_bodyA = isinstance(bodyA.userData, Ball)
         isBall_bodyB = isinstance(bodyB.userData, Ball)
-        if isBall_bodyA or isBall_bodyB:
-            utils.sounds.play_song()
-
-        # for body in [bodyA, bodyB]:
-        #     if isinstance(body.userData, Ball):
-        #         utils.sounds.play_song()
-        #         body.linearVelocity += (0, 1)
-        #         break
-        # if isBall_bodyA and isBall_bodyB:
-        #     if bodyA.userData.radius > bodyB.userData.radius and bodyA.userData.radius > 10:
-        #         bodyB.userData.radius -= bodyB.userData.radius*(randint(1, 15)/100)
-        #         bodyB.userData.inc_rad_flag = True
-        #     elif bodyB.userData.radius > bodyA.userData.radius and bodyB.userData.radius > 10:
-        #         bodyA.userData.radius -= bodyA.userData.radius*(randint(1, 15)/100)
-        #         bodyA.userData.inc_rad_flag = True
-        # else:
-        #     if isBall_bodyA and not isBall_bodyB and bodyA.userData.radius < 200:
-        #         bodyA.userData.radius += bodyA.userData.radius*(randint(5, 8)/100)
-        #         bodyA.userData.inc_rad_flag = True
-        #     elif isBall_bodyB and not isBall_bodyA and bodyB.userData.radius < 200:
-        #         bodyB.userData.radius += bodyB.userData.radius*(randint(5, 8)/100)
-        #         bodyB.userData.inc_rad_flag = True
-        
-        bodyA.linearVelocity += (0.01, 1) if isBall_bodyA else (0, 0)
-        bodyB.linearVelocity += (0.01, 1) if isBall_bodyB else (0, 0)
+        if isBall_bodyA:
+            utils.sounds.play_composite()
+            bodyA.userData.ball.linearVelocity += (0.01, 1)
+            bodyA.userData.radius = bodyA.userData.radius * 1.1
+        if isBall_bodyB:
+            utils.sounds.play_composite()
+            bodyB.userData.ball.linearVelocity += (0.01, 1)
+            bodyB.userData.radius = bodyB.userData.radius * 1.01
 
     def setup_level(self):
         utils.sounds.set_sound("sounds/fx/perfect-sf.wav")
         
         ballradius = 10
         hues=[315/355, 190/355]
+        circle_radius = 80
 
         self.balls.append(Ball((self.width/2 - ballradius*2 , self.height/2 - 50), radius=ballradius, hue=hues[0]))
-        self.balls.append(Ball((self.width/2 + ballradius*2, self.height/2 - 50), radius=ballradius, hue=hues[1]))
-        circle = Circle(
-                    (self.width/2 , self.height/2),
-                    radius=200, 
-                    rotate_speed=0.5,
-                    hue=145/355, 
-                    gap_angle=10,
-                    segs=360,
-                    thickness=2, 
-                    animate_color=False
-                )
-        self.shapes.append(circle)
-
+        #self.balls.append(Ball((self.width/2 + ballradius*2, self.height/2 - 50), radius=ballradius, hue=hues[1]))
+        for i in range (1,9):
+            circle = Circle(
+                        (self.width/2 , self.height/2),
+                        radius=circle_radius, 
+                        rotate_speed=0,
+                        hue=hues[i%2], 
+                        gap_angle=40,
+                        segs=360,
+                        thickness=2, 
+                        animate_color=False,
+                        angle_start = 90 - 20
+                    )
+            circle_radius += 20
+            self.shapes.append(circle)
+            self.shapes[0].rotate_speed = 0.5
 
     def simulation_logic(self):
         
         for ball in self.balls:
             ball_pos = Vector2(utils.scale_to_pixels(ball.ball.position))
-            if self.shapes and Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius and ball not in self.balls_gone:
-                self.balls.append(Ball((self.width/2 - ball.radius*2 , self.height/2 - 50), radius=ball.radius, hue=ball.hue))
-                self.balls.append(Ball((self.width/2 + ball.radius*2, self.height/2 - 50), radius=ball.radius, hue=ball.hue))
-                self.balls_gone.append(ball)
-            if Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius + 200:
-                utils.world.DestroyBody(ball.ball)
-                self.balls.remove(ball)
+            if self.shapes and Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius - ball.radius*0.8:
+                self.shapes[0].cleanup()
+                self.shapes.pop(0)
+                if self.shapes:
+                    self.shapes[0].rotate_speed = 0.5
+                utils.sounds.play_single_sound()
 
     def run(self):
         self.setup_level()

@@ -10,7 +10,7 @@ class Ball:
         self.hue = hue
         self.animate_color = animate_color
         self.radius = radius
-        self.inc_rad = 0
+        self.prev_radius = radius
         self.ball = utils.world.CreateDynamicBody(
             fixtures=b2FixtureDef(
                 shape=b2CircleShape(radius=utils.scale_to_world(self.radius)),
@@ -24,19 +24,19 @@ class Ball:
     
 
     def update(self):
-        if self.inc_rad != 0:
+        if self.radius != self.prev_radius:
             self.ball.DestroyFixture(self.ball.fixtures[0])
 
             new_fixture = b2FixtureDef(
-                shape=b2CircleShape(radius=utils.scale_to_world(self.rad + self.inc_rad)),
+                shape=b2CircleShape(radius=utils.scale_to_world(self.radius)),
                 density=0.5,
                 restitution=1,
                 friction=0
             )
 
             self.ball.CreateFixture(new_fixture)
-
-            self.inc_rad = 0
+            self.prev_radius = self.radius
+            
         self.position = utils.world_to_pixels(self.ball.position)
 
     def draw_trail(self):

@@ -106,8 +106,8 @@ class Game:
                     radius=200, 
                     rotate_speed=0.5,
                     hue=145/355, 
-                    gap_angle=20,
-                    segs=25,
+                    gap_angle=10,
+                    segs=360,
                     thickness=2, 
                     animate_color=False
                 )
@@ -119,7 +119,7 @@ class Game:
         for ball in self.balls:
             ball_pos = Vector2(utils.scale_to_pixels(ball.ball.position))
             if self.shapes and Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius and ball not in self.balls_gone:
-                #self.balls.append(Ball((self.width/2 - ball.radius*2 , self.height/2 - 50), radius=ball.radius, hue=ball.hue))
+                self.balls.append(Ball((self.width/2 - ball.radius*2 , self.height/2 - 50), radius=ball.radius, hue=ball.hue))
                 self.balls.append(Ball((self.width/2 + ball.radius*2, self.height/2 - 50), radius=ball.radius, hue=ball.hue))
                 self.balls_gone.append(ball)
             if Vector2(self.center).distance_to(ball_pos) > self.shapes[0].radius + 200:
@@ -137,8 +137,8 @@ class Game:
                     self.running = not self.running
 
             if self.running:
-                print(self.clock.get_fps())
-                utils.calculate_dt()
+                #print(self.clock.get_fps())
+                utils.calculate_dt(self.fps)
                 self.draw()
                 self.update()
                 self.simulation_logic()        

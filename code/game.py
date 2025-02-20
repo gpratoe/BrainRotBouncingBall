@@ -14,7 +14,7 @@ class Game:
         self.height = height
         self.center = Vector2(width/2, height/2)
         self.fps = fps
-        self.screen = pg.display.set_mode((width, height),pg.HWSURFACE | pg.DOUBLEBUF)
+        self.screen = pg.display.set_mode((width, height),pg.HWSURFACE | pg.DOUBLEBUF   )
         self.background = pg.Surface(self.screen.get_size())
         self.background.fill((0, 0, 0))
         self.current_screen = 0
@@ -32,6 +32,8 @@ class Game:
         utils.world.contactListener = ContactListener(self.colission_handler)
         utils.cl = utils.world.contactListener
         utils.trail_surface = pg.Surface(self.screen.get_size(), pg.SRCALPHA)
+        self.fade_surface = pg.Surface(self.screen.get_size(), pg.SRCALPHA)
+        self.fade_surface.fill((0,0,0,10))
 
         # simulation utils
         self.balls_distance_to_center = []
@@ -39,7 +41,7 @@ class Game:
 
 
     def update(self):       
-        utils.world.Step(utils.delta_time, 6, 0)
+        utils.world.Step(utils.delta_time, 4, 2)
         
         for shape in self.shapes:
             shape.update()
@@ -53,7 +55,7 @@ class Game:
         for ball in self.balls:
             ball.draw_trail()
         utils.screen.blit(utils.trail_surface, (0,0))
-        utils.trail_surface.fill((255,255,255,200), special_flags=pg.BLEND_RGBA_MULT) # pinto la nueva surface de blanco con alpha en 200 por cada cuadro
+        utils.trail_surface.blit(self.fade_surface, (0,0), special_flags=pg.BLEND_RGBA_SUB)
         for ball in self.balls:
             ball.draw()
         for shape in self.shapes:
@@ -123,8 +125,8 @@ class Game:
                     self.running = not self.running
 
             if self.running:
-                #print(self.clock.get_fps())
+                print(self.clock.get_fps())
                 utils.calculate_dt(self.fps)
-                self.draw()
                 self.update()
                 self.simulation_logic()        
+                self.draw()

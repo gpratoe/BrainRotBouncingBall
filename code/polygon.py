@@ -1,4 +1,5 @@
 import math
+import pygame
 from pygame import draw
 from Box2D import (b2FixtureDef, b2Vec2, b2ChainShape, b2Mul) 
 from utils import utils
@@ -26,7 +27,8 @@ class Polygon:
                                                         restitution=1.0),
                                                     bullet=True)
         self.polygon.userData = self
-
+        self.rect = pygame.Rect(position[0] - radius, position[1] - radius, radius * 2, radius * 2)
+    
     def __setup_vertices__(self):
         total_segments = (self.size - self.open_segments)
         for i in range(total_segments + 1):

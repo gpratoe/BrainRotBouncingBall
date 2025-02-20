@@ -38,7 +38,7 @@ class Game:
         # simulation utils
         self.balls_distance_to_center = []
         self.balls_gone = []
-
+        self.rects = []
 
     def update(self):       
         utils.world.Step(utils.delta_time, 4, 2)
@@ -61,7 +61,7 @@ class Game:
         for shape in self.shapes:
             shape.draw()
 
-        pg.display.flip()
+        pg.display.update(self.rects)
         self.clock.tick(self.fps)
 
     def colission_handler(self):
@@ -102,6 +102,8 @@ class Game:
             circle_radius += 20
             self.shapes.append(circle)
             self.shapes[0].rotate_speed = 0.5
+        
+        self.rects = [ball.rect for ball in self.balls] + [shape.rect for shape in self.shapes]
 
     def simulation_logic(self):
         
@@ -125,7 +127,7 @@ class Game:
                     self.running = not self.running
 
             if self.running:
-                print(self.clock.get_fps())
+
                 utils.calculate_dt(self.fps)
                 self.update()
                 self.simulation_logic()        

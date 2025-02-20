@@ -21,6 +21,9 @@ class Ball:
             position=(utils.pixels_to_world(self.position)))
         
         self.ball.userData = self
+
+        # pygame rect para optimizar animación
+        self.rect = pygame.Rect(position[0] - radius, position[1] - radius, radius * 2, radius * 2)
     
 
     def update(self):
@@ -38,6 +41,10 @@ class Ball:
             self.prev_radius = self.radius
             
         self.position = utils.world_to_pixels(self.ball.position)
+
+        # Actualizamos el rect ya que cambia de posición 
+        self.rect.topleft = (self.position[0] - self.radius, self.position[1] - self.radius)
+        self.rect.size = (self.radius * 2, self.radius * 2)
 
     def draw_trail(self):
         if self.animate_color:
